@@ -1,0 +1,89 @@
+{
+  "address": "8yyV2rKoiBMBsiXhnJ4d64gDASdeMtQL8GFh8mH9e2Vk",
+  "metadata": {
+    "name": "influnest",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "initialize_oracle",
+      "discriminator": [1, 2, 3, 4, 5, 6, 7, 8],
+      "accounts": [],
+      "args": [
+        {
+          "name": "oracle",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "create_campaign",
+      "discriminator": [2, 3, 4, 5, 6, 7, 8, 9],
+      "accounts": [],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "amount_usdc",
+          "type": "u64"
+        },
+        {
+          "name": "target_likes",
+          "type": "u64"
+        },
+        {
+          "name": "target_comments",
+          "type": "u64"
+        },
+        {
+          "name": "target_views",
+          "type": "u64"
+        },
+        {
+          "name": "target_shares",
+          "type": "u64"
+        },
+        {
+          "name": "deadline_ts",
+          "type": "i64"
+        },
+        {
+          "name": "instagram_username",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Campaign",
+      "discriminator": [50, 124, 68, 219, 175, 238, 177, 199]
+    },
+    {
+      "name": "OracleConfig",
+      "discriminator": [93, 119, 150, 13, 57, 238, 115, 205]
+    }
+  ],
+  "types": [
+    {
+      "name": "CampaignStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Pending" },
+          { "name": "Active" },
+          { "name": "Completed" },
+          { "name": "Cancelled" },
+          { "name": "Expired" }
+        ]
+      }
+    }
+  ]
+}

@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-influnet = "8yyV2rKoiBMBsiXhnJ4d64gDASdeMtQL8GFh8mH9e2Vk"
+influnest = "8yyV2rKoiBMBsiXhnJ4d64gDASdeMtQL8GFh8mH9e2Vk"
 
 [registry]
 url = "https://api.apr.dev"
