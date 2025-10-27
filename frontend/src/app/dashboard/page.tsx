@@ -1,12 +1,12 @@
 'use client';
 
-import { usePrivy, useSolanaWallets } from '@privy-io/react-auth';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
-  const { ready, authenticated, user, login } = usePrivy();
-  const { wallets } = useSolanaWallets();
+  const { ready, authenticated, user } = usePrivy();
+  const { wallets } = useWallets();
   const router = useRouter();
   const [campaigns, setCampaigns] = useState([]);
 
@@ -16,7 +16,7 @@ export default function Dashboard() {
     }
   }, [ready, authenticated, router]);
 
-  const solanaWallet = wallets.find((w) => w.chainType === 'solana');
+  const solanaWallet = wallets.find((w: any) => w.chainType === 'solana');
 
   if (!ready || !authenticated) {
     return (

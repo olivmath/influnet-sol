@@ -1,85 +1,57 @@
 "use client";
 
 import { usePrivy } from "@privy-io/react-auth";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 
 import { FullScreenLoader } from "@/components/ui/fullscreen-loader";
-import { Header } from "@/components/ui/header";
-import CreateAWallet from "@/components/sections/create-a-wallet";
-import UserObject from "@/components/sections/user-object";
-import { ArrowLeftIcon } from "@heroicons/react/16/solid";
-import FundWallet from "@/components/sections/fund-wallet";
-import LinkAccounts from "@/components/sections/link-accounts";
-import UnlinkAccounts from "@/components/sections/unlink-accounts";
-import WalletActions from "@/components/sections/wallet-actions";
-import SessionSigners from "@/components/sections/session-signers";
-import WalletManagement from "@/components/sections/wallet-management";
-import MFA from "@/components/sections/mfa";
 
 function Home() {
-  const { ready, authenticated, logout, login } = usePrivy();
+  const { ready, authenticated, login } = usePrivy();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (ready && authenticated) {
+      router.push('/dashboard');
+    }
+  }, [ready, authenticated, router]);
+
   if (!ready) {
     return <FullScreenLoader />;
   }
 
   return (
-    <div className={`${authenticated ? 'bg-[#E0E7FF66] md:max-h-[100vh] md:overflow-hidden' : 'bg-transparent h-screen overflow-hidden'}`}>
-      <Header authenticated={authenticated} />
-      {authenticated ? (
-        <section className="w-full flex flex-col md:flex-row h-screen pt-[60px]">
-          <div className="flex-grow overflow-y-auto h-full p-4 pl-8">
-            <button className="button" onClick={logout}>
-              <ArrowLeftIcon className="h-4 w-4" strokeWidth={2} /> Logout
-            </button>
-
-            <div>
-              <CreateAWallet />
-              <FundWallet />
-              <LinkAccounts />
-              <UnlinkAccounts />
-              <WalletActions />
-              <SessionSigners />
-              <WalletManagement />
-              <MFA />
-            </div>
-          </div>
-          <UserObject />
-        </section>
-      ) : (
-        <section className="w-full flex flex-row justify-center items-center h-screen relative">
-          <Image
-            src="./BG.svg"
-            alt="Background"
-            fill
-            style={{ objectFit: "cover", zIndex: 0 }}
-            priority
-          />
-          <div className="z-10 flex flex-col items-center justify-center w-full h-full">
-          <div className="flex h-10 items-center justify-center rounded-[20px] border border-white px-6 text-lg text-white font-abc-favorit">
-            Next.js Demo
-          </div>
-        <div className="text-center mt-4 text-white text-7xl font-medium font-abc-favorit leading-[81.60px]">
-          Starter repo
-        </div>
-            <div className="text-center text-white text-xl font-normal leading-loose mt-8">
-              Get started developing with Privy using our Next.js starter repo
-            </div>
-            <button
-              className="bg-white text-brand-off-black mt-15 w-full max-w-md rounded-full px-4 py-2 hover:bg-gray-100 lg:px-8 lg:py-4 lg:text-xl"
-              onClick={() => {
+    <div className="bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 min-h-screen">
+      <section className="w-full flex flex-col justify-center items-center h-screen relative px-4">
+        <div className="z-10 flex flex-col items-center justify-center w-full max-w-4xl">
+          <h1 className="text-center text-white text-7xl md:text-8xl font-bold mb-6">
+            Influnest
+          </h1>
+          <p className="text-center text-white text-2xl md:text-3xl font-light mb-4">
+            Decentralized Influencer Marketing Platform
+          </p>
+          <p className="text-center text-white/80 text-lg md:text-xl mb-12 max-w-2xl">
+            Connect influencers with brands on Solana. Transparent, milestone-based payments in USDC.
+          </p>
+          <button
+            className="bg-white text-purple-700 font-bold text-xl px-12 py-4 rounded-full hover:bg-gray-100 transition-all shadow-2xl hover:shadow-xl transform hover:scale-105"
+            onClick={() => {
+              if (authenticated) {
+                router.push('/dashboard');
+              } else {
                 login();
-                setTimeout(() => {
-                  (document.querySelector('input[type="email"]') as HTMLInputElement)?.focus();
-                }, 150);
-              }}
-            >
-              Get started
-            </button>
+              }
+            }}
+          >
+            {authenticated ? 'Go to Dashboard' : 'Get Started'}
+          </button>
+          <div className="mt-12 text-white/60 text-sm">
+            Powered by Solana • Secured by Smart Contracts
           </div>
-        </section>
-      )}
-  
+        </div>
+      </section>
+
       <ToastContainer
         position="top-center"
         autoClose={5000}

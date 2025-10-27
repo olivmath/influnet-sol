@@ -1,6 +1,6 @@
 'use client';
 
-import { usePrivy, useSolanaWallets } from '@privy-io/react-auth';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { PublicKey } from '@solana/web3.js';
@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 
 export default function CampaignDetail() {
   const { ready, authenticated } = usePrivy();
-  const { wallets } = useSolanaWallets();
+  const { wallets } = useWallets();
   const params = useParams();
   const router = useRouter();
   const [campaign, setCampaign] = useState<any>(null);
