@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
-declare_id!("8yyV2rKoiBMBsiXhnJ4d64gDASdeMtQL8GFh8mH9e2Vk");
+declare_id!("DS6344gi387M4e6XvS99QQXGiDmY6qQi4xYxqGUjFbB3");
 
 #[program]
 pub mod influnest {
@@ -34,6 +34,7 @@ pub mod influnest {
         target_shares: u64,
         deadline_ts: i64,
         instagram_username: String,
+        created_at: i64,
     ) -> Result<()> {
         require!(name.len() <= 100, InflunestError::NameTooLong);
         require!(description.len() <= 500, InflunestError::DescriptionTooLong);
@@ -59,7 +60,7 @@ pub mod influnest {
         campaign.instagram_username = instagram_username;
         campaign.status = CampaignStatus::Pending;
         campaign.brand = Pubkey::default();
-        campaign.created_at = Clock::get()?.unix_timestamp;
+        campaign.created_at = created_at;
         campaign.posts = Vec::new();
         campaign.bump = ctx.bumps.campaign;
 
@@ -152,11 +153,10 @@ pub mod influnest {
 
         if amount_to_transfer > 0 {
             // Transfer USDC from vault to influencer
-            let campaign_key = campaign.key();
             let seeds = &[
-                b"campaign",
+                b"campaign".as_ref(),
                 campaign.influencer.as_ref(),
-                campaign_key.as_ref(),
+                &campaign.created_at.to_le_bytes(),
                 &[campaign.bump],
             ];
             let signer = &[&seeds[..]];
@@ -194,11 +194,10 @@ pub mod influnest {
 
         if remaining_amount > 0 {
             // Transfer remaining USDC from vault to brand
-            let campaign_key = campaign.key();
             let seeds = &[
-                b"campaign",
+                b"campaign".as_ref(),
                 campaign.influencer.as_ref(),
-                campaign_key.as_ref(),
+                &campaign.created_at.to_le_bytes(),
                 &[campaign.bump],
             ];
             let signer = &[&seeds[..]];
@@ -318,12 +317,13 @@ pub struct UpdateOracle<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(created_at: i64)]
 pub struct CreateCampaign<'info> {
     #[account(
         init,
         payer = influencer,
         space = 8 + Campaign::INIT_SPACE,
-        seeds = [b"campaign", influencer.key().as_ref(), &Clock::get()?.unix_timestamp.to_le_bytes()],
+        seeds = [b"campaign", influencer.key().as_ref(), &created_at.to_le_bytes()],
         bump
     )]
     pub campaign: Account<'info, Campaign>,
@@ -378,15 +378,20 @@ pub struct UpdateCampaignMetrics<'info> {
     #[account(
         mut,
         seeds = [b"campaign", campaign.influencer.as_ref(), &campaign.created_at.to_le_bytes()],
-        bump = campaign.bump
+        bump = campaign.bump,
+        has_one = influencer
     )]
     pub campaign: Account<'info, Campaign>,
+    /// CHECK: Only the influencer's pubkey is used for ATA seeds and has_one validation.
+    /// No account data is read or written; constraints ensure correctness.
+    pub influencer: UncheckedAccount<'info>,
     #[account(
         seeds = [b"oracle-config"],
         bump = oracle_config.bump,
         constraint = oracle_config.oracle == oracle.key() @ InflunestError::UnauthorizedOracle
     )]
     pub oracle_config: Account<'info, OracleConfig>,
+    #[account(mut)]
     pub oracle: Signer<'info>,
     #[account(
         mut,
@@ -398,7 +403,7 @@ pub struct UpdateCampaignMetrics<'info> {
         init_if_needed,
         payer = oracle,
         associated_token::mint = usdc_mint,
-        associated_token::authority = campaign.influencer
+        associated_token::authority = influencer
     )]
     pub influencer_token_account: Account<'info, TokenAccount>,
     pub usdc_mint: Account<'info, Mint>,
@@ -416,6 +421,7 @@ pub struct WithdrawExpiredStake<'info> {
         has_one = brand
     )]
     pub campaign: Account<'info, Campaign>,
+    #[account(mut)]
     pub brand: Signer<'info>,
     #[account(
         mut,

@@ -1,17 +1,19 @@
 'use client';
 
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { usePrivy } from '@privy-io/react-auth';
+import { useWallets as useSolanaWallets } from '@privy-io/react-auth/solana';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { PublicKey } from '@solana/web3.js';
 import { getProgram, getVaultTokenAccount, USDC_MINT } from '@/lib/anchor';
+import { toAnchorWallet } from '@/lib/privyWalletAdapter';
 import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { BN } from '@coral-xyz/anchor';
 import { toast } from 'react-toastify';
 
 export default function CampaignDetail() {
   const { ready, authenticated } = usePrivy();
-  const { wallets } = useWallets();
+  const { wallets } = useSolanaWallets();
   const params = useParams();
   const router = useRouter();
   const [campaign, setCampaign] = useState<any>(null);
@@ -19,7 +21,7 @@ export default function CampaignDetail() {
   const [funding, setFunding] = useState(false);
 
   const campaignId = params.id as string;
-  const solanaWallet = wallets.find((w) => w.chainType === 'solana');
+  const solanaWallet = wallets[0];
 
   useEffect(() => {
     if (ready && campaignId) {
@@ -29,9 +31,9 @@ export default function CampaignDetail() {
 
   const fetchCampaign = async () => {
     try {
-      const program = getProgram(solanaWallet || {} as any);
+      const program = getProgram(solanaWallet ? toAnchorWallet(solanaWallet) : ({} as any));
       const campaignPDA = new PublicKey(campaignId);
-      const campaignData = await program.account.campaign.fetch(campaignPDA);
+      const campaignData = await (program.account as any).campaign.fetch(campaignPDA);
 
       setCampaign({
         pubkey: campaignId,
@@ -54,7 +56,7 @@ export default function CampaignDetail() {
     setFunding(true);
 
     try {
-      const program = getProgram(solanaWallet);
+      const program = getProgram(toAnchorWallet(solanaWallet));
       const campaignPDA = new PublicKey(campaignId);
 
       // Get brand's USDC token account

@@ -15,6 +15,7 @@ export function getProgram(wallet: any) {
   const provider = new AnchorProvider(connection, wallet, {
     commitment: 'confirmed',
   });
+  // Anchor v0.32 usa o address do IDL; não precisa passar programId
   return new Program(idl as any, provider);
 }
 

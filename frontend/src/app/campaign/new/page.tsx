@@ -1,16 +1,18 @@
 'use client';
 
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { usePrivy } from '@privy-io/react-auth';
+import { useWallets as useSolanaWallets } from '@privy-io/react-auth/solana';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { PublicKey } from '@solana/web3.js';
 import { getProgram, getCampaignPDA } from '@/lib/anchor';
+import { toAnchorWallet } from '@/lib/privyWalletAdapter';
 import { BN } from '@coral-xyz/anchor';
 import { toast } from 'react-toastify';
 
 export default function NewCampaign() {
   const { authenticated } = usePrivy();
-  const { wallets } = useWallets();
+  const { wallets } = useSolanaWallets();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -26,7 +28,7 @@ export default function NewCampaign() {
   });
   const [loading, setLoading] = useState(false);
 
-  const solanaWallet = wallets.find((w) => w.chainType === 'solana');
+  const solanaWallet = wallets[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +41,7 @@ export default function NewCampaign() {
     setLoading(true);
 
     try {
-      const program = getProgram(solanaWallet);
+      const program = getProgram(toAnchorWallet(solanaWallet));
       const now = Math.floor(Date.now() / 1000);
       const deadline = now + parseInt(formData.deadline_days) * 24 * 60 * 60;
 

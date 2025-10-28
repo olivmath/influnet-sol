@@ -5,8 +5,8 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
-[programs.localnet]
-influnest = "8yyV2rKoiBMBsiXhnJ4d64gDASdeMtQL8GFh8mH9e2Vk"
+[programs.devnet]
+influnest = "DS6344gi387M4e6XvS99QQXGiDmY6qQi4xYxqGUjFbB3"
 
 [registry]
 url = "https://api.apr.dev"
